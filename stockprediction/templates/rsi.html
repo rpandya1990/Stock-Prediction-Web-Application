@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    
+<script type="text/javascript">
+(function($) {
+$(window).load(function () {
+            StockPriceTicker();
+            setInterval(function() {StockPriceTicker();} , 1000);
+        });
+        function StockPriceTicker() {
+            var Symbol = "", CompName = "", Price = "", ChnageInPrice = "", PercentChnageInPrice = ""; 
+            var CNames = $('#stock').text();
+            var flickerAPI = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22" + CNames + "%22)&env=store://datatables.org/alltableswithkeys";
+            var StockTickerHTML = "";
+            
+            var StockTickerXML = $.get(flickerAPI, function(xml) {
+                $(xml).find("quote").each(function () {
+                    Symbol = $(this).attr("symbol");
+                    $(this).find("Name").each(function () {
+                        CompName = $(this).text();
+                    });
+                    $(this).find("LastTradePriceOnly").each(function () {
+                        Price = $(this).text();
+                    });
+                    $(this).find("Change").each(function () {
+                        ChnageInPrice = $(this).text();
+                    });
+                    $(this).find("PercentChange").each(function () {
+                        PercentChnageInPrice = $(this).text();
+                    });
+                    
+                    var PriceClass = "GreenText", PriceIcon="up_green";
+                    if(parseFloat(ChnageInPrice) < 0) { PriceClass = "RedText"; PriceIcon="down_red"; }
+                    StockTickerHTML = StockTickerHTML + "<span class='" + PriceClass + "'>";
+                    StockTickerHTML = StockTickerHTML + "<span class='quote'>" + CompName + " (" + Symbol + ")</span> ";
+                    
+                    StockTickerHTML = StockTickerHTML + parseFloat(Price).toFixed(2) + " ";
+                    StockTickerHTML = StockTickerHTML + "<span class='" + PriceIcon + "'></span>" + parseFloat(Math.abs(ChnageInPrice)).toFixed(2) + " (";
+                    StockTickerHTML = StockTickerHTML + parseFloat( Math.abs(PercentChnageInPrice.split('%')[0])).toFixed(2) + "%)</span>";
+                });
+                
+                $("#dvStockTicker").html(StockTickerHTML);
+                // $("#dvStockTicker").jStockTicker({interval: 30, speed: 2});
+            });
+        }
+        })(jQuery);
+</script>
+<style>
+        /*.navbar-default {
+            color: #FFFFFF;
+            background-color: rgba(50,93,165,0.6);
+            border-color: rgba(34,34,34,.05);
+            
+        }*/
+
+        .navbar-default {
+            border-color: rgba(34,34,34,.05);
+            color: #FFFFFF;
+            /*font-family: 'Open Sans','Helvetica Neue',Arial,sans-serif;*/
+            background-color: rgba(50,93,165,0.5);
+            -webkit-transition: all .35s;
+            -moz-transition: all .35s;
+            transition: all .35s;
+        }
+        .container1
+        {
+            background: #000 none;
+            border: 1px solid #000;
+            height: 30px;
+            margin: 0 auto;
+            width: 1298px;
+        }
+        .container1 .wrap
+        {
+            width: 1290px;
+            left: 5px;
+            top: 0px;
+            overflow: hidden;
+            position: relative;
+            line-height: 30px;
+            font-size-adjust: none;
+        }
+        .stockTicker
+        {
+            font-size: 14px;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .stockTicker span.quote
+        {
+            margin: 0;
+            font-size: 20px;
+            /*font-weight: bold;*/
+            color: #000;
+            padding: 0 5px 0 10px;
+        }
+        .GreenText
+        {
+            color: Green;
+        }
+        .RedText
+        {
+            color: Red;
+        }
+        .up_green
+        {
+            background: url(http://www.codescratcher.com/wp-content/uploads/2014/11/up.gif) no-repeat left center;
+            padding-left: 10px;
+            margin-right: 5px;
+        }
+        .down_red
+        {
+            background: url(http://www.codescratcher.com/wp-content/uploads/2014/11/down.gif) no-repeat left center;
+            padding-left: 10px;
+            margin-right: 5px;
+        }
+/*    body {
+        font: 10px sans-serif;
+    }*/
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
+
+    .rsi path {
+        fill: none;
+        stroke-width: 1;
+    }
+
+    .rsi {
+        stroke: #000000;
+    }
+
+    .rsi path.overbought, .rsi path.oversold {
+        stroke: #FF9999;
+        stroke-dasharray: 5, 5;
+    }
+
+    .rsi path.middle, path.zero {
+        stroke: #BBBBBB;
+        stroke-dasharray: 5, 5;
+    }
+
+</style>
+</head>
+<body>
+    <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <!-- <div class="navbar-header">
+      <a class="navbar-brand" href="#">WebSiteName</a>
+    </div> -->
+    <ul class="nav navbar-nav navbar-right">
+      <li>
+                        <a class="page-scroll" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/news/">News</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/news/">Compare</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#">Register</a>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+
+
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_login' %}">Login</a>
+                    </li>
+
+                    
+
+                    
+
+                    {% endif %}
+    </ul>
+  </div>
+</nav>
+    <div id='dvStockTicker' class='stockTicker'>
+        </div>
+        <div>
+ <button type="button" class="btn btn-primary" id="1month">1 Month</button>
+ <button type="button" class="btn btn-primary" id="3months">3 Months</button>
+ <button type="button" class="btn btn-primary" id="6months">6 Months</button>
+ <button type="button" class="btn btn-primary" id="1year">1 Year</button>
+ <button type="button" class="btn btn-primary" id="2year">2 Years</button>
+ <button type="button" class="btn btn-primary" id="5year">5 Years</button>
+ <button type="button" class="btn btn-primary" id="10year">10 Years</button>
+</div>
+<br>
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script src="http://techanjs.org/techan.min.js"></script>
+<script>
+
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+    var parseDate = d3.time.format("%Y-%m-%d").parse;
+
+    var x = techan.scale.financetime()
+            .range([0, width]);
+
+    var y = d3.scale.linear()
+            .range([height, 0]);
+
+    var rsi = techan.plot.rsi()
+            .xScale(x)
+            .yScale(y);
+
+    var xAxis = d3.svg.axis()
+            .scale(x)
+            .orient("bottom");
+
+    var yAxis = d3.svg.axis()
+            .scale(y)
+            .orient("left")
+            .tickFormat(d3.format(",.3s"));
+
+    var svg = d3.select("body").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    d3.json("{% url 'graph_rsi' name %}", function(error, data){
+        var accessor = rsi.accessor();
+
+        data = data.slice(0, 200).map(function(d) {
+            // Open, high, low, close generally not required, is being used here to demonstrate colored volume
+            // bars
+            return {
+                date: parseDate(d.Date),
+                volume: +d.Volume,
+                open: +d.Open,
+                high: +d.High,
+                low: +d.Low,
+                close: +d.Close
+            };
+        }).sort(function(a, b) { return d3.ascending(accessor.d(a), accessor.d(b)); });
+
+        var rsiData = techan.indicator.rsi()(data);
+        x.domain(rsiData.map(accessor.d));
+        y.domain(techan.scale.plot.rsi(rsiData).domain());
+
+        svg.append("g")
+                .datum(rsiData)
+                .attr("class", "rsi")
+                .call(rsi);
+
+        svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+        svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis)
+            .append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", ".71em")
+                .style("text-anchor", "end")
+                .text("RSI");
+    });
+ $(function(){
+         $('body').on('click', '#1month', function(event){
+        window.location.href = '/search/graph/{{name}}/30/';
+    })
+          $('body').on('click', '#3months', function(event){
+        window.location.href = '/search/graph/{{name}}/90/';
+    })
+           $('body').on('click', '#6months', function(event){
+        window.location.href = '/search/graph/{{name}}/180/';
+    })
+            $('body').on('click', '#1year', function(event){
+        window.location.href = '/search/graph/{{name}}/365/';
+    })
+             $('body').on('click', '#2year', function(event){
+        window.location.href = '/search/graph/{{name}}/730/';
+    })
+              $('body').on('click', '#5year', function(event){
+        window.location.href = '/search/graph/{{name}}/1825/';
+    })
+               $('body').on('click', '#10year', function(event){
+        window.location.href = '/search/graph/{{name}}/3650/';
+    })
+        $('body').on('click', '#macd', function(event){
+        window.location.href = '/search/macd/{{name}}/';
+    })
+        $('body').on('click', '#rsi', function(event){
+        window.location.href = '/search/rsi/{{name}}/';
+    })
+        $('body').on('click', '#candlestick', function(event){
+        window.location.href = '/search/candlestick/{{name}}/';
+    })
+        $('body').on('click', '#trendline', function(event){
+        window.location.href = '/search/trendline/{{name}}/';
+    })
+        $('body').on('click', '#volume', function(event){
+        window.location.href = '/search/volume/{{name}}/';
+    })
+        $('body').on('click', '#close', function(event){
+        window.location.href = '/search/close/{{name}}/';
+    })
+    })
+</script>
+<button type="button" class="btn btn-primary"id="reset">Reset</button>
+<br>
+<!-- <div><h4>Indicators<h4></div> -->
+
+<div class="row">
+    <div class="col-md-12">
+ <button type="button" class="btn btn-primary"id="macd">MACD</button>
+ <button type="button" class="btn btn-primary"id="rsi">RSI</button>
+ <button type="button" class="btn btn-primary"id="candlestick">Candlesticks</button>
+ <button type="button" class="btn btn-primary"id="trendline">Trendlines</button>
+ <button type="button" class="btn btn-primary"id="volume">Volume</button>
+ <button type="button" class="btn btn-primary"id="close">Close</button>
+</div>
+</div>
+
+<br>
+
+
+
+
+<div class="row"> 
+<div class="col-md-8">        
+  <table class="table table-striped ">
+    {% for book in books %}
+    <tbody>
+      <tr>
+        <td>Prev Close: {{book.prev_close}}</td>
+        <td>Open: {{book.open_price}}</td>
+      </tr>
+      <tr>
+        <td>Day's Range: {{book.days_low}}-{{book.days_high}}</td>
+        <td>Year's High: {{book.year_high}}</td>
+      </tr>
+      <tr>
+        <td>Year's Low: {{book.year_low}}</td>
+        <td>EBIDTA: {{book.ebidta}}</td>
+      </tr>
+      <tr>
+        <td>Market Cap: {{book.market_cap}}</td>
+        <td>Average Daily Volume: {{book.avg_daily_vol}}</td>
+      </tr>
+      <tr>
+        <td>Dividend & Yield: {{book.dividend_yield}}</td>
+        <td>EPS: {{book.eps}}</td>
+      </tr>
+      <tr>
+        <td>50 Day Moving Average: {{book.moving_avg_50}}</td>
+        <td>200 Day Moving Average: {{book.moving_avg_200}}</td>
+      </tr>
+      <tr>
+        <td>Price Earnings Ratio: {{book.price_earnings_ratio}}</td>
+        <td>Price Earnings Growth Ratio: {{book.price_earnings_growth_ratio}}</td>
+      </tr>
+    </tbody>
+    {% endfor %}
+  </table>
+</div>
+
+<div class="col-md-4">
+    <p><h1>{{message}}</h1></p>
+{% for pr in p %}
+    <p><h4>Predicted price using ANN: {{pr.ann_prediction}}</h4></p>
+    <p><h4>Predicted price using Bayesian: {{pr.bayesian_prediction}}</h4></p>
+    <p><h4>Predicted price using SVM: {{pr.svm_prediction}}</h4></p>
+{% endfor %}
+  
+</div>
+</div>
+<!-- <div class="col-sm-6">
+    
+    </div>
+</div> -->
+
+</body>
+
+<!-- <div class="row">
+<div class="col-sm-4"> -->
+  <!-- <p>You Searched for {{name}}</p> -->
+     <!-- <ul>
+       {% for book in books %}
+           <p>Prev Close: {{book.prev_close}}</p>
+           <p>Open: {{book.open_price}}</p>
+           <p>Day's Range: {{book.days_low}}-{{book.days_high}}</p>
+           <p>Year's High: {{book.year_high}}</p>
+           <p>Year's Low: {{book.year_low}}</p>
+           <p>EBIDTA: {{book.ebidta}}</p>
+           <p>Market Cap: {{book.market_cap}}</p>
+       {% endfor %}
+</ul>
+</div> -->
+
+<!-- <div class="col-sm-4">
+<ul> -->
+<!-- {% for book in books %}
+<p>Average Daily Volume: {{book.avg_daily_vol}}</p>
+           <p>Dividend & Yield: {{book.dividend_yield}}</p>
+           <p>EPS: {{book.eps}}</p>
+           <p>50 Day Moving Average: {{book.moving_avg_50}}</p>
+           <p>200 Day Moving Average: {{book.moving_avg_200}}</p>
+           <p>Price Earnings Ratio: {{book.price_earnings_ratio}}</p>
+           <p>Price Earnings Growth Ratio: {{book.price_earnings_growth_ratio}}</p>
+           {% endfor %}
+           </ul>
+           </div> -->
+      
+
+
+<!-- <div class="col-sm-4">
+<script type="text/javascript">
+document.write('\x3Cscript type="text/javascript" src="' + ('https:' == document.location.protocol ? 'https://' : 'http://') + 'feed.mikle.com/js/rssmikle.js">\x3C/script>');
+</script>
+<script type="text/javascript">
+(function() {var params = {rssmikle_url: "http://finance.yahoo.com/rss/headline?s=yhoo,fb,goog,csco",rssmikle_frame_width: "400",rssmikle_frame_height: "300",frame_height_by_article: "0",rssmikle_target: "_blank",rssmikle_font: "Arial, Helvetica, sans-serif",rssmikle_font_size: "12",rssmikle_border: "off",responsive: "off",rssmikle_css_url: "",text_align: "left",text_align2: "left",corner: "off",scrollbar: "on",autoscroll: "on",scrolldirection: "up",scrollstep: "3",mcspeed: "100",sort: "Off",rssmikle_title: "on",rssmikle_title_sentence: "",rssmikle_title_link: "",rssmikle_title_bgcolor: "#3C8DBC",rssmikle_title_color: "#FFFFFF",rssmikle_title_bgimage: "",rssmikle_item_bgcolor: "#FFFFFF",rssmikle_item_bgimage: "",rssmikle_item_title_length: "55",rssmikle_item_title_color: "#367fa9",rssmikle_item_border_bottom: "on",rssmikle_item_description: "on",item_link: "off",rssmikle_item_description_length: "50",rssmikle_item_description_color: "#666666",rssmikle_item_date: "gl1",rssmikle_timezone: "Etc/GMT",datetime_format: "%b %e, %Y %l:%M:%S %p",item_description_style: "html",item_thumbnail: "full",item_thumbnail_selection: "auto",article_num: "15",rssmikle_item_podcast: "off",keyword_inc: "",keyword_exc: ""};feedwind_show_widget_iframe(params);})();
+</script>
+</div> -->
+ </div>
+
+
+
+<!-- <script id="feed-1461827915890871" type="text/javascript" src="http://rss.bloople.net/?url=http%3A%2F%2Ffinance.yahoo.com%2Frss%2Fheadline%3Fs%3D{{name}}&detail=50&limit=10&showtitle=false&type=js&id=1461827915890871"></script>
+ -->
+
+
+<div class="hidden" id="stock">{{name}}</div>
+    </body>

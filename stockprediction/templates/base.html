@@ -1,0 +1,533 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    {% block title %}
+    <title>Stock Forecaster</title>
+    {% endblock title %}
+    <!-- Bootstrap Core CSS -->
+    <link rel="stylesheet" href="/static/css/bootstrap.css" type="text/css">
+
+    <!-- Custom Fonts -->
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Merriweather:400,300,300italic,400italic,700,700italic,900,900italic' rel='stylesheet' type='text/css'>
+    <link rel="stylesheet" href="{{ STATIC_URL }}/static/font-awesome/css/font-awesome.min.css" type="text/css">
+
+    <!-- Plugin CSS -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}/static/css/animate.min.css" type="text/css">
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}/static/css/creative.css" type="text/css">
+        <script src="{{ STATIC_URL }}/static/js/jquery.js"></script>
+
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+        <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+        <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+        (function($) {
+            $.fn.jStockTicker = function(options) {
+                if (typeof (options) == 'undefined') {
+                    options = {};
+                }
+                var settings = $.extend( {}, $.fn.jStockTicker.defaults, options);
+                var $ticker = $(this);
+                var $wrap = null;
+                settings.tickerID = $ticker[0].id;
+                $.fn.jStockTicker.settings[settings.tickerID] = {};
+ 
+                if ($ticker.parent().get(0).className != 'wrap') {
+                    $wrap = $ticker.wrap("<div class='wrap'></div>");
+                }
+ 
+                var $tickerContainer = null;
+                if ($ticker.parent().parent().get(0).className != 'container1') {
+                    $tickerContainer = $ticker.parent().wrap(
+                            "<div class='container1'></div>");
+                }
+                
+                var node = $ticker[0].firstChild;
+                var next;
+                while(node) {
+                    next = node.nextSibling;
+                    if(node.nodeType == 3) {
+                        $ticker[0].removeChild(node);
+                    }
+                    node = next;
+                }
+                
+                var shiftLeftAt = $ticker.children().get(0).offsetWidth;
+                $.fn.jStockTicker.settings[settings.tickerID].shiftLeftAt = shiftLeftAt;
+                $.fn.jStockTicker.settings[settings.tickerID].left = 0;
+                $.fn.jStockTicker.settings[settings.tickerID].runid = null;
+                $ticker.width(2 * screen.availWidth);
+                
+                function startTicker() {
+                    stopTicker();
+                    
+                    var params = $.fn.jStockTicker.settings[settings.tickerID]; 
+                    params.left -= settings.speed;
+                    if(params.left <= params.shiftLeftAt * -1) {
+                        params.left = 0;
+                        $ticker.append($ticker.children().get(0));
+                        params.shiftLeftAt = $ticker.children().get(0).offsetWidth;
+                    }
+                    
+                    $ticker.css('left', params.left + 'px');
+                    params.runId = setTimeout(arguments.callee, settings.interval);
+                    
+                    $.fn.jStockTicker.settings[settings.tickerID] = params;
+                }
+                
+                function stopTicker() {
+                    var params = $.fn.jStockTicker.settings[settings.tickerID];
+                    if (params.runId)
+                        clearTimeout(params.runId);
+                    
+                    params.runId = null;
+                    $.fn.jStockTicker.settings[settings.tickerID] = params;
+                }
+                
+                function updateTicker() {           
+                    stopTicker();
+                    startTicker();
+                }
+                
+                // $ticker.hover(stopTicker,startTicker);      
+                startTicker();
+            };
+ 
+            $.fn.jStockTicker.settings = {};
+            $.fn.jStockTicker.defaults = {
+                tickerID :null,
+                url :null,
+                speed :1,
+                interval :20
+            };
+            $(window).load(function () {
+            StockPriceTicker();
+            setInterval(function() {StockPriceTicker();} , 60000);
+        });
+        function StockPriceTicker() {
+            var Symbol = "", CompName = "", Price = "", ChnageInPrice = "", PercentChnageInPrice = ""; 
+            var CNames = "GOOG,YHOO,AAPL,FB,CSCO,AMZN,GE,CRM";
+            var flickerAPI = "http://query.yahooapis.com/v1/public/yql?q=select%20*%20from%20yahoo.finance.quotes%20where%20symbol%20in%20(%22" + CNames + "%22)&env=store://datatables.org/alltableswithkeys";
+            var StockTickerHTML = "";
+            
+            var StockTickerXML = $.get(flickerAPI, function(xml) {
+                $(xml).find("quote").each(function () {
+                    Symbol = $(this).attr("symbol");
+                    $(this).find("Name").each(function () {
+                        CompName = $(this).text();
+                    });
+                    $(this).find("LastTradePriceOnly").each(function () {
+                        Price = $(this).text();
+                    });
+                    $(this).find("Change").each(function () {
+                        ChnageInPrice = $(this).text();
+                    });
+                    $(this).find("PercentChange").each(function () {
+                        PercentChnageInPrice = $(this).text();
+                    });
+                    
+                    var PriceClass = "GreenText", PriceIcon="up_green";
+                    if(parseFloat(ChnageInPrice) < 0) { PriceClass = "RedText"; PriceIcon="down_red"; }
+                    StockTickerHTML = StockTickerHTML + "<span class='" + PriceClass + "'>";
+                    StockTickerHTML = StockTickerHTML + "<span class='quote'>" + CompName + " (" + Symbol + ")</span> ";
+                    
+                    StockTickerHTML = StockTickerHTML + parseFloat(Price).toFixed(2) + " ";
+                    StockTickerHTML = StockTickerHTML + "<span class='" + PriceIcon + "'></span>" + parseFloat(Math.abs(ChnageInPrice)).toFixed(2) + " (";
+                    StockTickerHTML = StockTickerHTML + parseFloat( Math.abs(PercentChnageInPrice.split('%')[0])).toFixed(2) + "%)</span>";
+                });
+                
+                $("#dvStockTicker").html(StockTickerHTML);
+                $("#dvStockTicker").jStockTicker({interval: 30, speed: 2});
+            });
+        }
+        })(jQuery);
+    </script>
+    <style type="text/css">
+        .container1
+        {
+            background: #000 none;
+            border: 1px solid #000;
+            height: 30px;
+            margin: 0 auto;
+            width: 1298px;
+        }
+        .container1 .wrap
+        {
+            width: 1290px;
+            left: 5px;
+            top: 0px;
+            overflow: hidden;
+            position: relative;
+            line-height: 30px;
+            font-size-adjust: none;
+        }
+        .stockTicker
+        {
+            font-size: 14px;
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+        .stockTicker span.quote
+        {
+            margin: 0;
+            /*font-weight: bold;*/
+            color: #fff;
+            padding: 0 5px 0 10px;
+        }
+        .GreenText
+        {
+            color: Green;
+        }
+        .RedText
+        {
+            color: Red;
+        }
+        .up_green
+        {
+            background: url(http://www.codescratcher.com/wp-content/uploads/2014/11/up.gif) no-repeat left center;
+            padding-left: 10px;
+            margin-right: 5px;
+        }
+        .down_red
+        {
+            background: url(http://www.codescratcher.com/wp-content/uploads/2014/11/down.gif) no-repeat left center;
+            padding-left: 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+
+<body id="page-top">
+
+    <nav id="mainNav" class="navbar navbar-default navbar-fixed-top">
+        <div class="container-fluid">
+            <!-- Brand and toggle get grouped for better mobile display -->
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand page-scroll" href="#page-top"></a>
+            </div>
+
+            <!-- Collect the nav links, forms, and other content for toggling -->
+            <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a class="page-scroll" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/news/">News</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/compare/">Compare</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#">Register</a>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+
+
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_login' %}">Login</a>
+                    </li>
+
+                    
+
+                    
+
+                    {% endif %}
+                </ul>
+            </div>
+            <!-- /.navbar-collapse -->
+        </div>
+        <!-- /.container-fluid -->
+    </nav>
+{% block mainheader %}
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+
+                <h1>Stock Forecaster</h1>
+            
+            </div>
+        </div>
+    </header>
+{% endblock mainheader %}
+    
+    <!-- <section class="bg-primary" id="about">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">We've got what you need!</h2>
+                    <hr class="light">
+                    <p class="text-faded">Start Bootstrap has everything you need to get your new website up and running in no time! All of the templates and themes on Start Bootstrap are open source, free to download, and easy to use. No strings attached!</p>
+                    <a href="#" class="btn btn-default btn-xl">Get Started!</a>
+                </div>
+            </div>
+        </div>
+    </section> -->
+    
+{% block search %}
+    <div style="margin-top:5%;" id="search_bar" class="container">
+    <div class="row">
+        <div class="col-sm-6 col-sm-offset-3">
+            <div id="imaginary_container"> 
+                <div class="input-group stylish-input-group">
+                    <form id="search">
+                    <input type="text" class="form-control typeahead" placeholder="Search Stock Information" id="typeahead" data-url="/static/data/stocksymbol.json" usr-url="" />
+                    </form>
+                    <span class="input-group-addon">
+                        <button type="submit">
+                            <span  class="glyphicon glyphicon-search"></span>
+                        </button>  
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+{% endblock search %}
+<!-- form id="form-country_v1" name="form-country_v1">
+    <div class="typeahead__container">
+        <div class="typeahead__field">
+ 
+            <span class="typeahead__query">
+                <input class="js-typeahead-country_v1" name="country_v1[query]" type="search" placeholder="Search" autocomplete="off">
+            </span>
+            <span class="typeahead__button">
+                <button type="submit">
+                    <i class="typeahead__search-icon"></i>
+                </button>
+            </span>
+ 
+        </div>
+    </div>
+</form> -->
+<!--   <div class="form-group col-sm-4 col-sm-offset-4">
+      <form class="" id="search">
+        <input type="text" class="form-control typeahead" placeholder="Search by Stock" id="typeahead" data-url="static/data/stocksymbol.json" usr-url="" />
+        </form>
+      </div> -->
+
+
+{% block everything %}      
+    </div>
+    <section id="services">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <h2 class="section-heading">Everything you need, </h2>
+                    <h2 class="section-heading">All in one place </h2>
+                    <hr class="primary">
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <span style="font-size:3.2em;" class="glyphicon glyphicon-search"></span>
+                        <h3>Search</h3>
+                        <p class="text-muted">Search for Stock Information</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <i style="font-size:3.5em;" class="fa fa-lightbulb-o"></i>
+                        <h3>Prediction</h3>
+                        <p class="text-muted">We offer Short-term and Long-term Predictions for Stock Prices using state of the art Algorithms</p>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 text-center">
+                    <div class="service-box">
+                        <a href="{% url 'track' %}"><i style="font-size:3.5em;" class="fa fa-line-chart"></i></a>
+                        <h3> <a href="{% url 'track' %}">Track</h3></a>
+                        <p class="text-muted">Keep an eye on your Favourite Stocks</p>
+                    </div>
+                </div>
+        </div>
+    </section>
+
+    <section class="no-padding" id="portfolio">
+        <div class="container-fluid">
+            <div class="row no-gutter">
+                <div class="col-lg-4 col-sm-6">
+                    <a href="{% url 'query1' %}" class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/1.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                </div>
+                                <div class="project-name">
+                                    Query 1
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <a href="{% url 'query2' %}"  class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/2.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    Category
+                                </div>
+                                <div class="project-name">
+                                    Query 2
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <a href="{% url 'query3' %}" class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/3.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    Category
+                                </div>
+                                <div class="project-name">
+                                    Query 3
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <a href="{% url 'query4' %}" class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/4.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    Category
+                                </div>
+                                <div class="project-name">
+                                    Query 4
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <a href="{% url 'query5' %}" class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/5.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    Category
+                                </div>
+                                <div class="project-name">
+                                    Query 5
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="col-lg-4 col-sm-6">
+                    <a href="#" class="portfolio-box">
+                        <img src="{{ STATIC_URL }}/static/img/portfolio/6.jpg" class="img-responsive" alt="">
+                        <div class="portfolio-box-caption">
+                            <div class="portfolio-box-caption-content">
+                                <div class="project-category text-faded">
+                                    Category
+                                </div>
+                                <div class="project-name">
+                                    Project Name
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock everything %}
+
+    <!-- <aside class="bg-dark">
+        <div class="container text-center">
+            <div class="call-to-action">
+                <h2>Free Download at Start Bootstrap!</h2>
+                <a href="#" class="btn btn-default btn-xl wow tada">Download Now!</a>
+            </div>
+        </div>
+    </aside> -->
+    
+{% block linktosearch %}
+    <section id="contact">
+        <!-- <div class="container">
+            <div class="row">
+                <div class="col-lg-8 col-lg-offset-2 text-center">
+                    <h2 class="section-heading">Let's Get In Touch!</h2>
+                    <hr class="primary">
+                    <p></p>
+                </div>
+                <div class="col-lg-4 col-lg-offset-2 text-center">
+                    <i class="fa fa-phone fa-3x wow bounceIn"></i>
+                    <p></p>
+                </div>
+                <div class="col-lg-4 text-center">
+                    <i class="fa fa-envelope-o fa-3x wow bounceIn" data-wow-delay=".1s"></i>
+                    <p><a href="mailto:your-email@your-domain.com"></a></p>
+                </div>
+            </div>
+        </div> -->
+    </section>
+
+
+    <div id="StockTickerContainer" style="height: 32px; line-height: 32px; overflow: hidden;">
+        <div id='dvStockTicker' class='stockTicker'>
+        </div>
+    </div>
+    <!-- jQuery -->
+
+    <!-- Bootstrap Core JavaScript -->
+    <script src="{{ STATIC_URL }}/static/js/bootstrap.min.js"></script>
+
+    <!-- Plugin JavaScript -->
+    <script src="{{ STATIC_URL }}/static/js/jquery.easing.min.js"></script>
+    <script src="{{ STATIC_URL }}/static/js/jquery.fittext.js"></script>
+    <script src="{{ STATIC_URL }}/static/js/wow.min.js"></script>
+    <script src="{{ STATIC_URL }}/https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="{{ STATIC_URL }}/static/js/handlebars.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+    
+    <script type="text/javascript" src="static/js/jquery-1.10.2.min.js"></script>
+    <script src="{{ STATIC_URL }}/static/js/typeahead.js"></script>
+    <script src="{{ STATIC_URL }}/static/js/search.js"></script>
+
+    <!-- Custom Theme JavaScript -->
+    <script src="{{ STATIC_URL }}/static/js/creative.js"></script>
+
+</body>
+
+</html>
+{% endblock linktosearch %}

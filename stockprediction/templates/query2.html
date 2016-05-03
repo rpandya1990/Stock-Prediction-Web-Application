@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+
+{% block everything %}
+
+<div class="jumbotron text-center">
+	<h3> Highest Stock Price of Google in last 10 days : <strong >$ {{result2}} </strong> </h3>	
+</div>
+
+<script>
+	$(function(){
+
+		// remove few stuff from index page
+		$('header').remove();	
+		$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+		$('#search_bar').remove();
+	})
+</script>
+{% endblock everything %}

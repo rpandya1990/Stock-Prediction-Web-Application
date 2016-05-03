@@ -1,0 +1,188 @@
+{% extends "base.html" %}
+
+{% load staticfiles %}
+{% block mainheader %}
+
+{% endblock mainheader %}
+
+
+
+{% block everything %}
+
+
+<body>
+
+	<div class="jumbotron text-center">
+		<h2>Compare Stocks</h2>
+	</div>
+
+	<div class="col-sm-12 row" style="margin-top:10px;">
+		<div class="col-sm-4 col-sm-offset-4 form-group">
+			<div class="col-sm-4">
+				<input type="text" placeholder="Stock 1" class="form-control" name="stockname1" id="fav_val" >
+			</div>
+
+			<div class="col-sm-4">
+				<input type="text" placeholder="Stock 2" class="form-control" name="stockname2" id="fav_val2" >
+			</div>
+
+			<div class="col-sm-4">
+				<input type="button" class="form-control" id = "compare" value="Compare" />
+			</div>
+				
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col-sm-4 col-sm-offset-4" id="">
+			
+			<table class="table table-bordered table-hover " id="show_compare">
+			</table>
+		</div>
+	</div>
+
+
+<script>
+	$(function(){
+
+		$(function(){
+
+			// remove few stuff from index page
+			$('header').remove();	
+			$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+			$('#search_bar').remove();
+		})
+		$('#compare').click(function(){
+			//console.log('gdsfjhgfdjhgdfjfdg');
+			var name = $('#fav_val').val();
+			var name2= $('#fav_val2').val();
+			
+
+			// Make Ajax call
+			$.ajax({
+				method : 'GET',
+				url : '/compare1/ajax/',
+				data: {
+					'stock_name' : name,
+					'stock_name2' : name2
+				},
+				success: function(data){
+					console.log(data);
+					var info1= $.parseJSON(data.info1);
+					var info2= $.parseJSON(data.info2);
+					console.log(info1);
+					// $('#show_compare').append('<h3 class="text-center"> Stock name Latest Price </h3>');
+					
+
+					// $('#show_compare').append('<p>'+ 'year high : '+ info1[0].fields.year_high + '</p>');
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> STOCK </b></td>');
+					$('#show_compare').append('<td> <b>'+ name+' </b></td>');
+					$('#show_compare').append('<td> <b>'+ name2 + ' </b></td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Year High </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.year_high+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.year_high + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Year Low </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.year_low+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.year_low + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Open Price</b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.open_price+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.open_price + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> EBIDTA </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.ebidta+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.ebidta + ' </td>');
+					$('#show_compare').append('</tr>');
+					
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Market Cap </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.market_cap+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.market_cap + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Average Daily Volume </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.avg_daily_vol+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.avg_daily_vol + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Dividend Yield </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.dividend_yield+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.dividend_yield + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  EPS </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.eps+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.eps + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b> Days Low </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.days_low+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.days_low + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  Days High </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.days_high+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.days_high + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  Moving Average 50 </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.moving_avg_50+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.moving_avg_50 + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  Moving Average 200 </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.moving_avg_200+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.moving_avg_200 + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  Price Earnings Ratio </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.price_earnings_ratio+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.price_earnings_ratio + ' </td>');
+					$('#show_compare').append('</tr>');
+
+					$('#show_compare').append(' <tr>');
+					$('#show_compare').append(' <td> <b>  Price Earnings Growth Ratio </b></td>');
+					$('#show_compare').append('<td> '+ info1[0].fields.price_earnings_growth_ratio+' </td>');
+					$('#show_compare').append('<td> '+ info2[0].fields.price_earnings_growth_ratio + ' </td>');
+					$('#show_compare').append('</tr>');
+					$('#show_compare').append('</table>');
+					
+					console.log("success");
+				},
+				error : function(data){
+					console.log('Error');
+				}
+
+			})
+		})
+	})
+</script>
+
+{% endblock everything %}
+
+
+
+{% block search %}
+{% endblock search %}
+{% block linktosearch %}
+{% endblock linktosearch %}
+

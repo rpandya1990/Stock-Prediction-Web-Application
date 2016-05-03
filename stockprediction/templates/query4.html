@@ -1,0 +1,26 @@
+{% extends 'base.html'%}
+
+{% block everything %}
+
+<h3><center> Lowest Closing Price for Each Company in Last 52 Weeks </center></h3><br/>
+
+<div class="col-sm-4 col-sm-offset-4">
+		<table class="table table-bordered">
+			{% for result in result4 %}
+			<tr>
+				<td class="text-info">{{result.0}}</a></td>
+				<td>{{result.1}}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	<div>
+<script>
+	$(function(){
+
+		// remove few stuff from index page
+		$('header').remove();	
+		$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+		$('#search_bar').remove();
+	})
+</script>
+{% endblock everything %}

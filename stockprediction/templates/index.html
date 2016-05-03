@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}
+    <title>Stock Forecaster</title>
+    {% endblock title %}
+
+
+    {% block mainheader %}
+    <header>
+        <div class="header-content">
+            <div class="header-content-inner">
+            {% if user.is_authenticated %}
+                <h1>Hi, {{user.username}}</h1>
+
+            {% else %}
+
+                <h1>Stock Forecaster</h1>
+            
+            {% endif %}
+            </div>
+        </div>
+    </header>
+{% endblock mainheader %}

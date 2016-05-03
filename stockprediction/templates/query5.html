@@ -1,0 +1,31 @@
+{% extends 'base.html'%}
+
+{% block everything %}
+<div class="row">
+	
+	<div class="jumbotron text-center">
+		<h4> List of Stock symbol and name which have an Average Price over  a year greater than lowest price of Google </h4>	
+	</div>
+	 
+	<div class="col-sm-4 col-sm-offset-4">
+		<table class="table table-bordered">
+			{% for result in result5name %}
+			<tr>
+				<td class="text-info">{{result.0}}</a></td>
+				<td>{{result.1}}</td>
+			</tr>
+			{% endfor %}
+		</table>
+	<div>
+</div>
+
+<script>
+	$(function(){
+
+		// remove few stuff from index page
+		$('header').remove();	
+		$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+		$('#search_bar').remove();
+	})
+</script>
+{% endblock everything %}

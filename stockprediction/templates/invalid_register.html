@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% if not form.is_valid %}
+
+{% block content %}
+
+
+<h2> User already exists or Password did not match! </h2>
+<p> Click <a href="/stockapp/register.html/"> here </a> to register </p>
+
+
+{% endblock %}
+
+
+
+{% endif %}

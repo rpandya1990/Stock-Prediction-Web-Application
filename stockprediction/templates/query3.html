@@ -1,0 +1,18 @@
+{% extends 'base.html'%}
+
+{% block everything %}
+
+<div class="jumbotron text-center">
+	<h3>Average Closing Price of Microsoft in last One year: <strong>$ {{result3}} </strong> </h3>		
+</div>
+
+<script>
+	$(function(){
+
+		// remove few stuff from index page
+		$('header').remove();	
+		$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+		$('#search_bar').remove();
+	})
+</script>
+{% endblock everything %}

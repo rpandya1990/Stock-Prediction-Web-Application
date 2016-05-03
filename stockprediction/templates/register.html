@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+
+
+{% block content %}
+
+<h2> Register here to Access Our Services</h2>
+
+
+<form action="/stockapp/register.html/" method="post">{% csrf_token %}
+<br/>
+    <tr>
+        <th><label for="username">*Name:&nbsp;</label></th>
+        <td><input id="id_name" maxlength="30" name="name" type="text" style="width:150px"/></td>
+    </tr>    
+    <br/>
+    <br/>
+    <tr>
+        <th><label for="id_email">*Email:&nbsp;</label></th>
+        <td><input id="id_email" name="email" type="email" style="width:200px"/></td>
+    </tr>
+    <br/>
+    <br/>
+    <tr>
+        <th><label for="id_username">*Username:&nbsp;</label></th>
+        <td><input id="id_username" maxlength="30" name="username" type="text" /></td>
+    </tr>
+    <br/>
+    <br/>
+    <tr>
+        <th><label for="id_password1">*Password:&nbsp;</label></th>
+        <td><input id="id_password1" name="password1" type="password" /></td>
+    </tr>
+    <br/>
+    <br/>
+    <tr>
+        <th><label for="id_password2">*Confirm Password:&nbsp;</label></th>
+        <td><input id="id_password2" name="password2" type="password" /><br /><br/></td>
+    </tr>
+
+<input type="submit" value="Register">
+
+</form>
+
+
+{% endblock %}

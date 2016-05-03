@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+{% load staticfiles %}
+
+
+{% block everything %}
+
+
+<body>
+<!-- <nav class="navbar navbar-default">
+  <div class="container-fluid">
+    <ul class="nav navbar-nav navbar-right">
+      <li>
+                        <a class="page-scroll" href="{% url 'index' %}">Home</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="/news/">News</a>
+                    </li>
+                    <li>
+                        <a class="page-scroll" href="#">Register</a>
+                    </li>
+                    
+                    {% if user.is_authenticated %}
+
+
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_logout' %}">Logout</a>
+                    </li>
+                    {% else %}
+                    <li> 
+
+                        <a class="page-scroll" href="{% url 'stockprediction_login' %}">Login</a>
+                    </li>
+
+                    
+
+                    
+
+                    {% endif %}
+    </ul>
+  </div>
+</nav> -->
+<div class="jumbotron text-center">
+	<h2>Favourite Stocks of {{user.username|title}}</h2>
+</div>
+
+<div class="col-sm-12 row" style="margin-top:10px;">
+	<div class="col-sm-4 col-sm-offset-4 form-group">
+		<div class="col-sm-6">
+			<input type="text" class="form-control" name="stoc1kname" id="fav_val" >
+		</div>
+		<div class="col-sm-6">
+			<input type="button" class="form-control" id = "add_favourite" value="Add to Favourite" />
+		</div>
+			
+	</div>
+</div>
+	
+<div class="col-sm-12 row" >
+
+	<h3 class="text-center"> Stock name Latest Price </h3>
+	
+	<div class="col-sm-4 col-sm-offset-4">
+		<table id="append_fav" class="table table-bordered table-hover ">
+
+			{% for stock in stocks %}
+			<tr id="">
+				<td><a href="/search/{{stock.stock}}/">{{stock.stock}}</a></td>
+				<td>{{stock.info.0.prev_close}}</td>
+				<td><a class="remove_fav" href="#" id="{{stock.stock}}"><span class="glyphicon glyphicon-remove" style="text-align:right"></span></a> </td>
+
+			</tr>
+			{% endfor %}
+
+		</table>
+	</div>
+</div>
+</div>
+
+
+<script>
+	$(function(){
+
+		// remove few stuff from index page
+		$('header').remove();	
+		$('#mainNav').css('background-color', 'rgba(50,93,165,0.5)');
+		$('#search_bar').remove();
+
+
+		$('#add_favourite').click(function(){
+			//console.log('gdsfjhgfdjhgdfjfdg');
+			var name = $('#fav_val').val();
+			//console.log(name);
+			$('#fav_val').val('');
+			// Make Ajax call
+			$.ajax({
+				method : 'GET',
+				url : '/track1/ajax/',
+				data: {
+					'stock_name' : name
+				},
+				success: function(data){
+					
+					$('#append_fav').append('<tr ><td><a href="/search/'+name+'/">'+ name + '</td><td>'+ data.price +'</td><td><a href="#" class="remove_fav" id="'+name+'"><span class="glyphicon glyphicon-remove" style="text-align:right"></span></a> </td></tr>');
+					console.log(data);
+				},
+				error : function(data){
+					console.log('Error');
+				}
+
+			})
+		})
+
+		$('body').on('click', '.remove_fav', function(){
+			//console.log('gdsfjhgfdjhgdfjfdg');
+			// var name2 = $('#fav_val1').val();
+			
+			var $this = $(this);
+			console.log($this.attr('id'));
+			// Make Ajax call
+			$.ajax({
+
+				method : 'GET',
+				url : '/track2/ajax/',
+				data: {
+					'stock_name1' : $this.attr('id')
+				},
+				success: function(data){
+					// $('#remove_favourite').append('<p>'+ name2 + ' --- '+ data.price +'</p>');
+					// $('#'+name2).remove();
+					$this.parent().parent().remove();
+					console.log(data);
+				},
+				error : function(data){
+					console.log('Error inside track');
+				}
+
+			})
+		})
+	})
+</script>
+
+
+{% endblock everything %}
+{% block linktosearch %}
+
+{% endblock linktosearch %}
+
+
+
+
